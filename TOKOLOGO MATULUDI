@@ -1,0 +1,60 @@
+import requests
+import json
+import time
+
+# Replace these variables with your actual IQ Option credentials
+IQOPTION_USERNAME = 'your_username'
+IQOPTION_PASSWORD = 'your_password'
+
+# Define your trading parameters
+ASSET = 'EURUSD'  # Asset to trade
+TIMEFRAME = '1m'  # Timeframe for analysis (1m, 5m, 15m, 1h, etc.)
+SIGNAL_THRESHOLD = 0.7  # Threshold for trading signal
+
+# Login to IQ Option
+def login(username, password):
+    url = 'https://auth.iqoption.com/api/v1.0/login'
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    data = {
+        'email': username,
+        'password': password
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    if response.status_code == 200:
+        return response.json()['token']
+    else:
+        print("Login failed. Status code:", response.status_code)
+        return None
+
+# Get trading signals
+def get_signals(asset, timeframe, threshold):
+    url = f'https://api.iqoption.com/trading/signals?active_id={asset}&time={timeframe}'
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        signals = response.json()
+        for signal in signals:
+            if signal['result']['win_probability'] >= threshold:
+                print("High probability signal found:", signal)
+                # Implement your trading logic here
+                # You may place a trade using IQ Option API
+            else:
+                print("Low probability signal found:", signal)
+    else:
+        print("Failed to fetch signals. Status code:", response.status_code)
+
+if __name__ == "__main__":
+    # Login to IQ Option
+    token = login("tokologo77@gmail.com", "14642@tk")
+    if token:
+        print("Login successful. Fetching signals...")
+        while True:
+            get_signals(ASSET, TIMEFRAME, SIGNAL_THRESHOLD)
+            # Sleep for a specific duration before fetching signals again
+            time.sleep(60)  # Fetch signals every 60 seconds
+    else:
+        print("Exiting...")
